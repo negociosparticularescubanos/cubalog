@@ -562,9 +562,9 @@
     document.querySelectorAll(".navbtn").forEach(b => { if (b.dataset.tab === "admin") b.hidden = true; });
     $("gateTitleEl").textContent = "Iniciar sesión";
     $("gateBodyEl").innerHTML =
-      "<label class='lbl' for='liUserInput' style='text-align:left'>Usuario</label><input id='liUserInput' type='text' placeholder='Ej. admin' autocomplete='username'>" +
-      "<label class='lbl' for='liPassInput' style='text-align:left'>Contraseña</label><input id='liPassInput' type='password' placeholder='••••••••' autocomplete='current-password'>" +
-      "<div class='btnrow'><button id='liGoBtn' class='btn' style='flex:1'>Entrar</button></div>";
+      "<label class='lbl' for='liUserInput' style='text-align:left'>Usuario</label><div class='gfield'><svg viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round'><circle cx='12' cy='8' r='3.4'/><path d='M5 20a7 7 0 0 1 14 0'/></svg><input id='liUserInput' type='text' placeholder='Ej. admin' autocomplete='username'></div>" +
+      "<label class='lbl' for='liPassInput' style='text-align:left'>Contraseña</label><div class='gfield'><svg viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round'><rect x='4' y='11' width='16' height='10' rx='2'/><path d='M8 11V7a4 4 0 0 1 8 0v4'/></svg><input id='liPassInput' type='password' placeholder='••••••••' autocomplete='current-password'></div>" +
+      "<div class='btnrow' style='margin-top:14px'><button id='liGoBtn' class='btn' style='flex:1'>Entrar</button></div>";
     $("liGoBtn").onclick = tryLogin;
     $("liPassInput").addEventListener("keydown", e => { if (e.key === "Enter") tryLogin(); });
     $("liUserInput").addEventListener("keydown", e => { if (e.key === "Enter") $("liPassInput").focus(); });
