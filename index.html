@@ -150,6 +150,7 @@
       radial-gradient(900px 620px at 50% 108%, rgba(56,89,199,.35) 0%, transparent 60%),
       linear-gradient(150deg, #131c3f 0%, #0b1220 55%, #101736 100%) fixed; }
   #gateEl[hidden]{ display:none; }
+  #appWrap[hidden]{ display:none; }
   .gatecard{ position:relative; width:min(400px,100%); background:rgba(255,255,255,.09); backdrop-filter:blur(20px) saturate(1.3); -webkit-backdrop-filter:blur(20px) saturate(1.3);
     border:1px solid rgba(255,255,255,.28); border-radius:26px; padding:30px 26px 24px; box-shadow:0 24px 60px rgba(0,0,0,.45), inset 0 1px 0 rgba(255,255,255,.25); text-align:center; color:#eef2ff; }
   .gateavatar{ width:94px; height:94px; margin:2px auto 10px; border-radius:50%; display:grid; place-items:center; position:relative;
@@ -210,7 +211,7 @@
 
 <a class="skip" href="#mainEl">Saltar al contenido</a>
 
-<div id="gateEl" hidden role="dialog" aria-modal="true" aria-label="Acceso">
+<div id="gateEl" role="dialog" aria-modal="true" aria-label="Acceso">
   <div class="gatecard">
     <div class="gateavatar"><svg><use href="#i-truck"/></svg></div>
     <div class="gatebrand">CubaLog</div>
@@ -220,7 +221,7 @@
   </div>
 </div>
 
-<div class="wrap">
+<div class="wrap" id="appWrap" hidden>
   <header class="hero">
     <div class="logo" aria-hidden="true"><svg><use href="#i-truck"/></svg></div>
     <div class="htitle">
