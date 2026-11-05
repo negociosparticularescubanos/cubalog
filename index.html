@@ -1,0 +1,428 @@
+<link rel="icon" type="image/svg+xml" href="favicon.svg">
+<script src="https://cdn.tailwindcss.com"></script>
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<script src="src/data/cuba-geo.js"></script>
+<script src="src/data/vehicle-catalog.js"></script>
+<script src="src/modules/store.js"></script>
+<script src="src/modules/routing.js"></script>
+<script src="src/modules/calculator.js"></script>
+<script src="src/modules/tasas.js"></script>
+<script src="src/modules/auth.js"></script>
+<script src="src/modules/server.js"></script>
+<script src="src/app.js"></script>
+
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <defs>
+    <linearGradient id="gbrand" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#22d3ee"/><stop offset="1" stop-color="#818cf8"/></linearGradient>
+  </defs>
+  <symbol id="i-route" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="6" cy="19" r="2.2"/><circle cx="18" cy="5" r="2.2"/><path d="M8.2 19H15a3 3 0 0 0 0-6H9a3 3 0 0 1 0-6h6.8"/></symbol>
+  <symbol id="i-car" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12l1.5-4.5A2 2 0 0 1 8.4 6h7.2a2 2 0 0 1 1.9 1.5L19 12"/><rect x="3.5" y="12" width="17" height="5" rx="1.5"/><circle cx="7.5" cy="17.5" r="1.6"/><circle cx="16.5" cy="17.5" r="1.6"/></symbol>
+  <symbol id="i-receipt" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 3h12v18l-2-1.4-2 1.4-2-1.4L10 21l-2-1.4L6 21z"/><path d="M9 8h6M9 12h6"/></symbol>
+  <symbol id="i-gear" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .34 1.87l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.7 1.7 0 0 0-1.87-.34 1.7 1.7 0 0 0-1.04 1.56V21a2 2 0 1 1-4 0v-.09a1.7 1.7 0 0 0-1.04-1.56 1.7 1.7 0 0 0-1.87.34l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06A1.7 1.7 0 0 0 4.6 15a1.7 1.7 0 0 0-1.56-1.04H3a2 2 0 1 1 0-4h.09A1.7 1.7 0 0 0 4.65 8.9a1.7 1.7 0 0 0-.34-1.87l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.7 1.7 0 0 0 1.87.34h.09A1.7 1.7 0 0 0 10.14 3V3a2 2 0 1 1 4 0v.09c0 .68.4 1.3 1.04 1.56.6.25 1.3.1 1.87-.34l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.7 1.7 0 0 0-.34 1.87v.09c.25.6.88 1.04 1.56 1.04H21a2 2 0 1 1 0 4h-.09c-.68 0-1.3.4-1.51 1.04z"/></symbol>
+  <symbol id="i-users" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="8" r="3.2"/><path d="M2.8 20a6.2 6.2 0 0 1 12.4 0"/><circle cx="17" cy="9" r="2.4"/><path d="M16 15.2a5.2 5.2 0 0 1 5.2 5.2"/></symbol>
+  <symbol id="i-bolt" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M13 2 4.5 13.5H11L10 22l8.5-11.5H12z"/></symbol>
+  <symbol id="i-logout" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><path d="M16 17l5-5-5-5M21 12H9"/></symbol>
+  <symbol id="i-lock" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="11" width="16" height="10" rx="2"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/></symbol>
+  <symbol id="i-truck" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 8h13v9H1zM14 11h4l4 4v2h-8z"/><circle cx="6" cy="19" r="1.8"/><circle cx="17.5" cy="19" r="1.8"/></symbol>
+</svg>
+
+<style>
+  @property --ga { syntax: '<angle>'; initial-value: 0deg; inherits: false; }
+  :root{
+    --bg:#0b1220; --bg2:#0f172a; --card:#151f35; --card2:#1a2742; --line:#263353;
+    --txt:#e8eefc; --mut:#93a1c0; --acc:#22d3ee; --acc2:#818cf8; --ok:#34d399; --warn:#fbbf24; --bad:#fb7185;
+    --glass:rgba(21,31,53,.72); --shadow:0 10px 30px rgba(2,6,17,.45), 0 2px 8px rgba(2,6,17,.4);
+    color-scheme:dark;
+  }
+  html[data-theme="light"]{
+    --bg:#eef2f9; --bg2:#ffffff; --card:#ffffff; --card2:#f1f5fd; --line:#d5deef;
+    --txt:#0f1f3d; --mut:#5b6b8c; --acc:#0284c7; --acc2:#6366f1;
+    --glass:rgba(255,255,255,.75); --shadow:0 10px 30px rgba(15,31,61,.12), 0 2px 8px rgba(15,31,61,.08);
+    color-scheme:light;
+  }
+  *{ box-sizing:border-box; }
+  html{ scroll-behavior:smooth; }
+  body{ background:radial-gradient(1200px 600px at 80% -10%, #1e2b52 0%, var(--bg) 55%) fixed, var(--bg) !important;
+    color:var(--txt) !important; text-align:left !important; font-family:ui-sans-serif,system-ui,Segoe UI,Roboto,Arial; margin:0; padding-bottom:96px;
+    transition:background .35s ease, color .35s ease; }
+  html[data-theme="light"] body{ background:radial-gradient(1200px 600px at 80% -10%, #dbeafe 0%, var(--bg) 55%) fixed, var(--bg) !important; }
+  .wrap{ max-width:1020px; margin:0 auto; padding:14px 14px 40px; container-type:inline-size; }
+  .skip{ position:absolute; left:-999px; }
+  .skip:focus{ left:12px; top:12px; z-index:99; background:var(--acc); color:#04121a; padding:8px 12px; border-radius:8px; }
+  /* ---------- cabecera vidrio ---------- */
+  header.hero{ display:flex; gap:12px; align-items:center; padding:12px 14px;
+    background:var(--glass); backdrop-filter:blur(14px); -webkit-backdrop-filter:blur(14px);
+    border:1px solid var(--line); border-radius:18px; margin-bottom:12px; box-shadow:var(--shadow); position:sticky; top:10px; z-index:30; }
+  .logo{ width:46px; height:46px; border-radius:14px; display:grid; place-items:center; flex:none;
+    background:linear-gradient(135deg,var(--acc),var(--acc2)); color:#04121a; position:relative; overflow:hidden; }
+  .logo svg{ width:28px; height:28px; }
+  .logo::after{ content:""; position:absolute; inset:-40%; background:conic-gradient(from var(--ga), transparent 0 70%, rgba(255,255,255,.5) 85%, transparent 100%); animation:sheen 4s linear infinite; }
+  @keyframes sheen{ to{ --ga:360deg; } }
+  .htitle{ min-width:0; } h1{ font-size:19px; margin:0; letter-spacing:.2px; } .sub{ color:var(--mut); font-size:12.5px; margin:2px 0 0; }
+  .userchip{ display:flex; align-items:center; gap:8px; background:var(--card2); border:1px solid var(--line); border-radius:99px; padding:4px 12px 4px 4px; font-size:13px; }
+  .iconbtn{ width:38px; height:38px; border-radius:12px; display:grid; place-items:center; background:var(--card2); color:var(--txt); border:1px solid var(--line); cursor:pointer; transition:transform .15s ease, box-shadow .2s ease; flex:none; }
+  .iconbtn:hover{ box-shadow:0 0 14px #22d3ee66; transform:translateY(-1px); }
+  /* ---------- navegación ---------- */
+  nav.bottom{ position:fixed; left:0; right:0; bottom:0; z-index:40; background:var(--glass); backdrop-filter:blur(16px); -webkit-backdrop-filter:blur(16px);
+    border-top:1px solid var(--line); display:flex; box-shadow:0 -8px 30px rgba(2,6,17,.35); }
+  nav.bottom button{ flex:1; background:none; border:0; color:var(--mut); padding:9px 4px 11px; font-size:11.5px; cursor:pointer; display:flex; flex-direction:column; align-items:center; gap:3px; transition:color .2s ease, transform .15s ease; }
+  nav.bottom button svg{ width:22px; height:22px; transition:transform .25s ease, filter .25s ease; }
+  nav.bottom button.active{ color:var(--acc); font-weight:700; }
+  nav.bottom button.active svg{ transform:translateY(-2px) scale(1.08); filter:drop-shadow(0 0 6px #22d3ee88); animation:pulse-ic 2.4s ease-in-out infinite; }
+  @keyframes pulse-ic{ 50%{ transform:translateY(-2px) scale(1.14); } }
+  /* ---------- tarjetas ---------- */
+  .card{ background:linear-gradient(180deg,var(--card),var(--bg2)); border:1px solid var(--line); border-radius:16px; padding:14px; margin:10px 0; box-shadow:var(--shadow); }
+  .card h2{ font-size:15px; margin:0 0 4px; display:flex; align-items:center; gap:8px; }
+  .card h2 svg{ width:18px; height:18px; color:var(--acc); }
+  .card h3{ font-size:12.5px; margin:14px 0 8px; color:var(--acc); text-transform:uppercase; letter-spacing:.6px; }
+  .muted{ color:var(--mut); } .sm{ font-size:12px; } .ok{ color:var(--ok); } .warn{ color:var(--warn); }
+  label.lbl{ display:block; font-size:12px; color:var(--mut); margin:8px 0 4px; }
+  select, input[type=text], input[type=number], input[type=password], input:not([type]), textarea{ width:100%; background:#0b1428; border:1px solid var(--line);
+    color:var(--txt,#e8eefc); border-radius:10px; padding:10px 11px; font-size:14px; outline:none; transition:border-color .2s ease, box-shadow .2s ease; }
+  html[data-theme="light"] select, html[data-theme="light"] input, html[data-theme="light"] textarea{ background:#f4f7fd; }
+  select:focus, input:focus, textarea:focus{ border-color:var(--acc); box-shadow:0 0 0 2px #22d3ee33; }
+  select:disabled{ opacity:.45; }
+  .grid2{ display:grid; grid-template-columns:1fr 1fr; gap:8px; } .grid3{ display:grid; grid-template-columns:1fr 1fr 1fr; gap:8px; }
+  @container (max-width:640px){ .grid3{ grid-template-columns:1fr; } }
+  /* ---------- botones nueva generación ---------- */
+  .btn{ position:relative; overflow:hidden; background:linear-gradient(135deg,#0ea5e9,#6366f1); border:1px solid transparent; color:#fff; font-weight:700; border-radius:12px;
+    padding:11px 14px; font-size:14px; cursor:pointer; display:inline-flex; align-items:center; gap:8px; justify-content:center;
+    transition:transform .12s ease, box-shadow .25s ease, filter .2s ease; box-shadow:0 4px 18px #0ea5e933; isolation:isolate; }
+  .btn:hover{ box-shadow:0 0 18px #22d3ee88, 0 6px 22px #6366f155; filter:brightness(1.06); }
+  .btn:active{ transform:scale(.97); }
+  .btn svg{ width:17px; height:17px; }
+  .btn:disabled{ opacity:.55; }
+  .btn.ghost{ background:var(--card2); border:1px solid var(--line); color:var(--txt); box-shadow:none; }
+  .btn.ghost:hover{ box-shadow:0 0 14px #22d3ee55; }
+  .btn.danger{ background:#3b1220; border:1px solid #7f1d2e; color:#fda4af; box-shadow:none; }
+  .btn.okbtn{ background:linear-gradient(135deg,#059669,#34d399); }
+  .btn.xs{ padding:6px 10px; font-size:12px; border-radius:9px; }
+  .btn.filebtn{ cursor:pointer; }
+  .ripple{ position:absolute; border-radius:50%; background:rgba(255,255,255,.45); transform:scale(0); animation:rip .6s ease-out forwards; pointer-events:none; }
+  @keyframes rip{ to{ transform:scale(3); opacity:0; } }
+  .btn.loading{ pointer-events:none; color:transparent !important; }
+  .btn.loading::after{ content:""; position:absolute; width:18px; height:18px; border-radius:50%; border:2px solid rgba(255,255,255,.4); border-top-color:#fff; animation:spin .7s linear infinite; }
+  @keyframes spin{ to{ transform:rotate(360deg); } }
+  .btnrow{ display:flex; gap:8px; flex-wrap:wrap; margin-top:10px; }
+  .pill{ background:#065f46; color:#a7f3d0; border-radius:99px; padding:3px 10px; font-size:11px; font-weight:700; }
+  /* ---------- listas ---------- */
+  .carcard{ display:flex; gap:10px; align-items:center; background:var(--card2); border:1px solid var(--line); border-radius:14px; padding:10px; margin:8px 0; transition:border-color .2s ease, transform .15s ease; }
+  .carcard:hover{ transform:translateY(-1px); }
+  .carcard.sel{ border-color:var(--ok); box-shadow:0 0 0 1px #34d39955; }
+  .avatar{ width:44px; height:44px; border-radius:12px; display:grid; place-items:center; font-weight:900; font-size:20px; color:#fff; flex:none; }
+  .avatar.sm{ width:28px; height:28px; font-size:15px; border-radius:9px; }
+  .carimg{ width:100%; height:150px; object-fit:cover; border-radius:12px; } .carimg.dflt{ display:grid; place-items:center; font-size:64px; }
+  .carthumb{ width:44px; height:44px; object-fit:cover; border-radius:12px; flex:none; }
+  .carinfo{ flex:1; min-width:0; display:flex; flex-direction:column; } .chapa{ background:#fef9c3; color:#713f12; font-weight:800;
+    border-radius:6px; padding:1px 7px; font-size:12px; width:fit-content; margin:2px 0; }
+  .carbtns{ display:flex; gap:6px; flex-wrap:wrap; justify-content:flex-end; }
+  .sug{ display:flex; justify-content:space-between; gap:8px; width:100%; text-align:left; background:var(--card2); border:1px dashed var(--line);
+    color:var(--txt); border-radius:10px; padding:8px 10px; margin-top:6px; cursor:pointer; font-size:13px; transition:border-color .2s ease; }
+  .sug:hover{ border-color:var(--acc); }
+  .destcard{ background:var(--card2); border:1px solid var(--line); border-radius:14px; padding:10px; margin:8px 0; transition:border-color .25s ease, box-shadow .25s ease; }
+  .destcard.final{ border-color:var(--ok); box-shadow:0 0 0 1px #34d39955, 0 0 18px #34d39922; }
+  .desthead{ display:flex; align-items:center; gap:8px; margin-bottom:6px; }
+  .destnum{ min-width:24px; height:24px; padding:0 6px; border-radius:99px; background:linear-gradient(135deg,var(--acc2),var(--acc)); color:#fff; display:grid; place-items:center; font-size:12px; font-weight:800; }
+  #mapEl{ height:300px; border-radius:14px; border:1px solid var(--line); background:#0a0f1e; z-index:1; }
+  .resgrid{ display:grid; grid-template-columns:1fr 1fr; gap:8px; }
+  @container (max-width:430px){ .resgrid{ grid-template-columns:1fr; } }
+  .rescard{ background:var(--card2); border:1px solid var(--line); border-radius:14px; padding:10px 12px; }
+  .rescard.total{ grid-column:1/-1; color:#fff; border:1px solid transparent;
+    background:linear-gradient(135deg,#065f46,#0ea5e9) padding-box, conic-gradient(from var(--ga),#34d399,#22d3ee,#818cf8,#34d399) border-box;
+    animation:spin-b 6s linear infinite; }
+  @keyframes spin-b{ to{ --ga:360deg; } }
+  .rest{ font-size:11px; color:var(--mut); text-transform:uppercase; letter-spacing:.5px; display:block; }
+  .rescard.total .rest{ color:#d1fae5; } .resv{ font-size:19px; } .ress{ display:block; font-size:11.5px; color:var(--mut); }
+  .rescard.total .ress{ color:#e0f2fe; }
+  .exprow{ display:flex; justify-content:space-between; align-items:center; background:var(--card2); border:1px solid var(--line); border-radius:12px; padding:9px 11px; margin:7px 0; gap:8px; }
+  .expmonto{ font-weight:800; text-align:right; } .fuelrow{ display:flex; justify-content:space-between; align-items:center; gap:10px; margin:8px 0; font-size:14px; }
+  .fuelrow input{ width:130px; text-align:right; }
+  .trips{ display:grid; grid-template-columns:1fr 1fr 1fr; gap:8px; } @container (max-width:640px){ .trips{ grid-template-columns:1fr; } }
+  .trip{ border:1px solid var(--line); border-radius:12px; padding:10px; cursor:pointer; background:var(--card2); font-size:13px; display:flex; gap:8px; align-items:center; transition:border-color .2s ease, background .2s ease; }
+  .trip.sel{ border-color:var(--acc); background:#0ea5e922; box-shadow:0 0 12px #22d3ee33; }
+  /* ---------- login ---------- */
+  #gateEl{ position:fixed; inset:0; z-index:100; display:grid; place-items:center; padding:18px;
+    background:radial-gradient(900px 500px at 50% -10%, #1e2b52 0%, #0b1220 60%) fixed; }
+  html[data-theme="light"] #gateEl{ background:radial-gradient(900px 500px at 50% -10%, #dbeafe 0%, #eef2f9 60%) fixed; }
+  #gateEl[hidden]{ display:none; }
+  .gatecard{ width:min(420px,100%); background:var(--glass); backdrop-filter:blur(18px); -webkit-backdrop-filter:blur(18px);
+    border:1px solid var(--line); border-radius:22px; padding:22px; box-shadow:var(--shadow); text-align:center; }
+  .gateusers{ display:grid; gap:8px; margin-top:12px; }
+  .gateuser{ display:flex; align-items:center; gap:10px; background:var(--card2); border:1px solid var(--line); color:var(--txt);
+    border-radius:14px; padding:10px 12px; cursor:pointer; font-size:15px; transition:transform .12s ease, box-shadow .2s ease, border-color .2s ease; }
+  .gateuser:hover{ border-color:var(--acc); box-shadow:0 0 14px #22d3ee55; transform:translateY(-1px); }
+  .gateuser:active{ transform:scale(.98); }
+  .dots{ display:flex; gap:10px; justify-content:center; margin:12px 0; }
+  .dot{ width:16px; height:16px; border-radius:50%; border:2px solid var(--acc); transition:background .15s ease, transform .15s ease; }
+  .dot.on{ background:linear-gradient(135deg,var(--acc),var(--acc2)); transform:scale(1.15); }
+  .pinpad{ display:grid; grid-template-columns:repeat(3,1fr); gap:8px; }
+  .pinkey{ font-size:20px; font-weight:800; padding:12px 0; border-radius:14px; border:1px solid var(--line); background:var(--card2); color:var(--txt); cursor:pointer; transition:transform .1s ease, box-shadow .2s ease; }
+  .pinkey:hover{ box-shadow:0 0 12px #22d3ee66; } .pinkey:active{ transform:scale(.93); }
+  #toastEl{ position:fixed; left:50%; transform:translateX(-50%); bottom:84px; background:#111c36; border:1px solid var(--acc);
+    color:#fff; padding:10px 16px; border-radius:99px; font-size:13px; z-index:120; box-shadow:0 8px 30px #0009; max-width:92vw; }
+  #toastEl.show{ animation:pop .25s ease; } @keyframes pop{ from{ transform:translateX(-50%) scale(.92); opacity:0; } }
+  .pulse{ animation:pl 1s infinite; } @keyframes pl{ 50%{ opacity:.45; } }
+  ol{ margin:8px 0 4px 20px; padding:0; font-size:13px; } ol li{ margin:3px 0; }
+  details.api{ background:var(--card2); border:1px solid var(--line); border-radius:12px; padding:10px 12px; font-size:12.5px; color:var(--mut); }
+  details.api summary{ cursor:pointer; color:var(--txt); font-weight:700; }
+  code{ background:#00000055; padding:0 5px; border-radius:6px; font-size:11.5px; }
+  footer.foot{ text-align:center; color:var(--mut); font-size:11px; margin-top:18px; }
+  @media (prefers-reduced-motion: reduce){
+    *, *::before, *::after{ animation-duration:.01ms !important; transition-duration:.01ms !important; }
+    html{ scroll-behavior:auto; }
+  }
+</style>
+
+<a class="skip" href="#mainEl">Saltar al contenido</a>
+
+<div id="gateEl" hidden role="dialog" aria-modal="true" aria-label="Acceso">
+  <div class="gatecard">
+    <div class="logo" style="margin:0 auto 10px;"><svg><use href="#i-truck"/></svg></div>
+    <h2 id="gateTitleEl" style="margin:0 0 4px;">CubaLog</h2>
+    <div id="gateBodyEl"></div>
+    <p class="sm muted" style="margin-top:12px;"><svg width="14" height="14" style="vertical-align:-2px"><use href="#i-lock"/></svg> Acceso con usuario y contraseña · tus datos se guardan en la base de datos</p>
+  </div>
+</div>
+
+<div class="wrap">
+  <header class="hero">
+    <div class="logo" aria-hidden="true"><svg><use href="#i-truck"/></svg></div>
+    <div class="htitle">
+      <h1>CubaLog — Calculadora de viajes</h1>
+      <p class="sub">Costo · Combustible · Ruta óptima · Tarifa al cliente</p>
+    </div>
+    <span style="flex:1"></span>
+    <div id="userChipEl" class="userchip" aria-live="polite"></div>
+    <button id="themeBtn" class="iconbtn" aria-label="Cambiar entre modo claro y oscuro"></button>
+    <button id="logoutBtn" class="iconbtn" aria-label="Cerrar sesión"><svg width="20" height="20"><use href="#i-logout"/></svg></button>
+  </header>
+
+  <main id="mainEl">
+  <!-- ============ VIAJE ============ -->
+  <section class="tabpage" data-tab="viaje" aria-label="Viaje">
+    <div class="card">
+      <h2><svg><use href="#i-car"/></svg>1 · Carro y tipo de viaje</h2>
+      <label class="lbl" for="vehSel">Carro seleccionado</label>
+      <select id="vehSel"></select>
+      <div id="vehResumeEl" style="display:flex;gap:10px;align-items:center;margin-top:8px;"></div>
+      <h3>Tipo de viaje — recargo configurable en Ajustes</h3>
+      <div class="trips" role="radiogroup" aria-label="Tipo de viaje">
+        <label class="trip sel"><input type="radio" name="tripType" value="Pasajeros" checked> 🧍 Pasajeros</label>
+        <label class="trip"><input type="radio" name="tripType" value="Carga"> 📦 Carga</label>
+        <label class="trip"><input type="radio" name="tripType" value="Pasajeros con Carga"> 🧍+📦 Mixto</label>
+      </div>
+      <p id="tasaBadgeEl" class="sm" style="margin:8px 0 0;"></p>
+      <div class="grid3" style="margin-top:8px;">
+        <label class="trip"><input id="rtToggle" type="checkbox"> 🔁 Ida y vuelta</label>
+        <label class="trip"><input id="nocToggle" type="checkbox"> 🌙 Nocturno</label>
+        <div><label class="lbl" for="paxInput">Pasajeros — pasaje c/u</label><input id="paxInput" type="number" min="1" max="60" step="1" value="1"></div>
+      </div>
+    </div>
+
+    <div class="card">
+      <h2><svg><use href="#i-route"/></svg>2 · Punto de partida — obligatorio</h2>
+      <div class="grid3">
+        <div><label class="lbl" for="oProvSel">Provincia</label><select id="oProvSel"></select></div>
+        <div><label class="lbl" for="oMuniSel">Municipio</label><select id="oMuniSel" disabled><option>Municipio…</option></select></div>
+        <div><label class="lbl" for="oLocSel">Localidad</label><select id="oLocSel" disabled><option>Localidad…</option></select></div>
+      </div>
+      <input id="oCustomInput" type="text" hidden placeholder="Escribe la dirección exacta…" style="margin-top:8px;" aria-label="Dirección exacta de partida">
+    </div>
+
+    <div class="card">
+      <h2><svg><use href="#i-route"/></svg>3 · Destinos — el último siempre es el destino final 🏁</h2>
+      <div id="destsCtn"></div>
+      <template id="destTpl">
+        <div class="destcard">
+          <div class="desthead"><span class="destnum">1</span><b>Destino</b>
+            <span style="flex:1"></span><button class="btn xs danger destdel">Quitar</button>
+          </div>
+          <div class="grid3">
+            <div><label class="lbl">Provincia</label><select class="dprov"></select></div>
+            <div><label class="lbl">Municipio</label><select class="dmuni" disabled><option>Municipio…</option></select></div>
+            <div><label class="lbl">Localidad</label><select class="dloc" disabled><option>Localidad…</option></select></div>
+          </div>
+          <input class="dcustom" type="text" hidden placeholder="Escribe la dirección exacta…" style="margin-top:8px;" aria-label="Dirección exacta del destino">
+        </div>
+      </template>
+      <div class="btnrow"><button id="addDestBtn" class="btn ghost"><svg><use href="#i-car"/></svg>＋ Añadir destino</button></div>
+    </div>
+
+    <div class="card">
+      <h2><svg><use href="#i-bolt"/></svg>4 · Calcular y optimizar</h2>
+      <div class="btnrow">
+        <button id="calcBtn" class="btn ghost">Calcular ruta</button>
+        <button id="optBtn" class="btn"><svg><use href="#i-bolt"/></svg>Optimizar ruta</button>
+      </div>
+      <p id="routeStatusEl" class="sm muted" style="margin:8px 0 0;" aria-live="polite"></p>
+      <div style="margin-top:10px;"><div id="mapEl" role="img" aria-label="Mapa de la ruta"></div>
+      <p class="sm muted">Mapa base: Esri + OSM, gratis y sin key. Si pegas tu key de Google en Ajustes, el cálculo usa Distance Matrix y Directions con waypoints optimizados.</p></div>
+    </div>
+
+    <div class="card" id="resSec" hidden>
+      <h2><svg><use href="#i-receipt"/></svg>🧾 Resultado — tarjetas del viaje</h2>
+      <div class="resgrid" id="resCtn"></div>
+      <div id="itinerarioEl" class="sm" style="margin-top:10px;"></div>
+      <div class="btnrow"><button id="shareBtn" class="btn okbtn">Compartir / copiar cotización</button><button id="waBtn" class="btn ghost">WhatsApp</button></div>
+    </div>
+
+    <div class="card" id="histSec" hidden>
+      <h2><svg><use href="#i-receipt"/></svg>🕘 Historial de cotizaciones</h2>
+      <div id="histCtn"></div>
+      <div class="btnrow"><button id="histClearBtn" class="btn xs danger">Borrar historial</button></div>
+    </div>
+
+    <details class="api">
+      <summary>¿Cómo conecto la API real de Google Maps?</summary>
+      <p>1 · Crea un proyecto en Google Cloud, activa <b>Directions API</b>, <b>Distance Matrix API</b> y <b>Geocoding API</b>, genera una key y pégala en Ajustes.<br>
+      2 · Esta app la inyecta como <code>https://maps.googleapis.com/maps/api/js?key=TU_KEY</code> y usa <code>DirectionsService.route — optimizeWaypoints:true</code>.<br>
+      3 · Sin key, todo funciona igual con Nominatim + OSRM — estimación vial real, sin costo.</p>
+    </details>
+  </section>
+
+  <!-- ============ CARROS ============ -->
+  <section class="tabpage" data-tab="carros" hidden aria-label="Mis carros">
+    <div class="card">
+      <h2 id="vehFormTitleEl"><svg><use href="#i-car"/></svg>Nuevo vehículo</h2>
+      <p class="sm muted">Escribe marca y modelo y pulsa buscar: la app autocompleta consumo, combustible e imagen.</p>
+      <div class="grid2">
+        <div><label class="lbl" for="vMarcaInput">Marca</label><input id="vMarcaInput" type="text" placeholder="Ej. Hyundai" autocomplete="off"></div>
+        <div><label class="lbl" for="vModeloInput">Modelo</label><input id="vModeloInput" type="text" placeholder="Ej. Accent" autocomplete="off"></div>
+      </div>
+      <div class="btnrow"><button id="vehSearchBtn" class="btn ghost">⌕ Buscar ficha en internet</button></div>
+      <div id="vehSugCtn"></div>
+      <div class="grid3">
+        <div><label class="lbl" for="vChapaInput">Chapa</label><input id="vChapaInput" type="text" placeholder="P 000 000"></div>
+        <div><label class="lbl" for="vConsInput">Consumo promedio</label><input id="vConsInput" type="number" min="0" step="0.1" placeholder="6.8"></div>
+        <div><label class="lbl" for="vUnidadSel">Unidad</label><select id="vUnidadSel"><option>L/100km</option><option>km/L</option><option>L/km</option></select></div>
+      </div>
+      <div class="grid2">
+        <div><label class="lbl" for="vCombSel">Combustible</label><select id="vCombSel"><option>Gasolina Regular</option><option>Gasolina Especial</option><option>Diesel</option><option>Diesel Especial</option><option>Gas Licuado</option></select></div>
+        <div><label class="lbl" for="vImgInput">Imagen — URL opcional</label><input id="vImgInput" type="text" placeholder="https://…"></div>
+      </div>
+      <div class="btnrow">
+        <button id="vehSaveBtn" class="btn">Guardar en Mis Carros</button>
+        <button id="vehCancelBtn" class="btn ghost" hidden>Cancelar</button>
+      </div>
+    </div>
+    <div class="card"><h2><svg><use href="#i-car"/></svg>Mis Carros — lista persistente</h2><div id="carListCtn"></div></div>
+  </section>
+
+  <!-- ============ GASTOS ============ -->
+  <section class="tabpage" data-tab="gastos" hidden aria-label="Gastos diarios">
+    <div class="card">
+      <h2><svg><use href="#i-receipt"/></svg>Gastos diarios del carro</h2>
+      <p class="sm muted">Reparaciones menores, parqueo, almuerzo del chofer, imprevistos… Se suman al precio final.</p>
+      <div class="grid2">
+        <div><label class="lbl" for="expConceptoInput">Concepto</label><input id="expConceptoInput" type="text" placeholder="Ej. Almuerzo chofer"></div>
+        <div><label class="lbl" for="expMontoInput">Monto — CUP</label><input id="expMontoInput" type="number" min="0" step="0.01" placeholder="0.00"></div>
+      </div>
+      <div class="btnrow">
+        <button id="expAddBtn" class="btn">＋ Registrar gasto</button>
+        <button id="expClearBtn" class="btn danger">Borrar día</button>
+      </div>
+    </div>
+    <div class="card"><h2>Registros de hoy — Total: <span id="expTotalEl">0.00 CUP</span></h2><div id="expListCtn"></div></div>
+  </section>
+
+  <!-- ============ ADMIN ============ -->
+  <section class="tabpage" data-tab="admin" hidden aria-label="Administración">
+    <div class="card">
+      <h2><svg><use href="#i-users"/></svg>Usuarios — cada uno con sus datos</h2>
+      <p class="sm muted">Crea cuentas de chofer: cada una inicia sesión con su usuario y contraseña, y solo ve sus carros, precios y gastos. La cuenta general es <b>admin</b>.</p>
+      <div class="grid3">
+        <div><label class="lbl" for="nuNameInput">Nombre a mostrar</label><input id="nuNameInput" type="text" placeholder="Ej. Chofer 2" maxlength="24" autocomplete="off"></div>
+        <div><label class="lbl" for="nuUserInput">Usuario (login)</label><input id="nuUserInput" type="text" placeholder="Ej. chofer2" maxlength="20" autocomplete="off"></div>
+        <div><label class="lbl" for="nuPassInput">Contraseña</label><input id="nuPassInput" type="password" placeholder="Mínimo 4 caracteres" autocomplete="new-password"></div>
+      </div>
+      <div class="btnrow"><button id="addUserBtn" class="btn">＋ Crear usuario</button></div>
+    </div>
+    <div class="card"><h2><svg><use href="#i-users"/></svg>Cuentas</h2><div id="usersCtn"></div></div>
+    <div class="card"><h2>Respaldo total</h2>
+      <p class="sm muted">Descarga o restaura todos los datos del dispositivo.</p>
+      <div class="btnrow">
+        <button id="exportBtn" class="btn ghost">Descargar respaldo</button>
+        <label class="btn ghost filebtn">Cargar respaldo<input id="importFile" type="file" accept=".json" hidden></label>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ AJUSTES ============ -->
+  <section class="tabpage" data-tab="ajustes" hidden aria-label="Ajustes">
+    <div class="card">
+      <h2><svg><use href="#i-bolt"/></svg>Tasa informal USD — elToque</h2>
+      <p class="sm muted">Se consulta sola cada vez que calculas un viaje. Sirve para mostrar todos los precios también en dólares.</p>
+      <div id="tasasBoxEl" class="sm" style="margin:8px 0;"></div>
+      <label class="lbl" for="tasaManualInput">USD manual — CUP por 1 USD (respaldo sin conexión)</label>
+      <input id="tasaManualInput" type="number" min="0" step="0.01" placeholder="Ej. 410">
+      <div class="btnrow"><button id="tasaRefreshBtn" class="btn ghost">⇄ Consultar tasa ahora</button></div>
+    </div>
+    <div class="card">
+      <h2>Precio informal del combustible — CUP/L</h2>
+      <p class="sm muted">La app revisa estas páginas al calcular y usa el precio informal si lo encuentra. Si no, usa tu valor manual, y si no hay, el oficial.</p>
+      <label class="lbl" style="display:flex;gap:8px;align-items:center;"><input id="infToggle" type="checkbox" checked style="width:auto;"> Usar precio informal al calcular</label>
+      <div id="infFuelCtn"></div>
+      <label class="lbl" for="infUrlsInput">Páginas fuente — una URL por línea</label>
+      <textarea id="infUrlsInput" rows="3" placeholder="https://… (página con el precio informal)"></textarea>
+      <p id="infStatusEl" class="sm muted"></p>
+      <div class="btnrow"><button id="infCheckBtn" class="btn ghost">⌕ Revisar páginas ahora</button></div>
+    </div>
+    <div class="card">
+      <h2>Modelo tarifario estilo app — referencia La Nave / Yango</h2>
+      <p class="sm muted">Banderazo + CUP por km y por minuto, con mínimo, retorno vacío y nocturno. Se muestra como referencia junto a tu precio por costos.</p>
+      <div class="grid3">
+        <div><label class="lbl" for="tarBandInput">Banderazo — CUP</label><input id="tarBandInput" type="number" min="0" step="1"></div>
+        <div><label class="lbl" for="tarKmInput">CUP por km</label><input id="tarKmInput" type="number" min="0" step="0.5"></div>
+        <div><label class="lbl" for="tarMinInput">CUP por minuto</label><input id="tarMinInput" type="number" min="0" step="0.5"></div>
+      </div>
+      <div class="grid3">
+        <div><label class="lbl" for="tarMinimoInput">Tarifa mínima — CUP</label><input id="tarMinimoInput" type="number" min="0" step="1"></div>
+        <div><label class="lbl" for="tarRetInput">Retorno vacío — % del viaje</label><input id="tarRetInput" type="number" min="0" max="100" step="5"></div>
+        <div><label class="lbl" for="tarNocInput">Nocturno × (22:00–5:00)</label><input id="tarNocInput" type="number" min="1" max="3" step="0.05"></div>
+      </div>
+      <p id="tarUsdEl" class="sm muted" style="margin:8px 0 0;"></p>
+    </div>
+    <div class="card">
+      <h2>Precios del combustible en Cuba — CUP por litro</h2>
+      <p class="sm muted">Editables. El botón simula la consulta automática a la tarifa vigente y recarga los campos.</p>
+      <div id="fuelListCtn"></div>
+      <div class="btnrow"><button id="fuelAutoBtn" class="btn ghost">⇄ Actualizar precios automáticamente</button></div>
+    </div>
+    <div class="card">
+      <h2>Recargos por tipo de viaje — % sobre el combustible</h2>
+      <div class="grid3">
+        <div><label class="lbl" for="recPasInput">Pasajeros — %</label><input id="recPasInput" type="number" min="0" step="1"></div>
+        <div><label class="lbl" for="recCarInput">Carga — %</label><input id="recCarInput" type="number" min="0" step="1"></div>
+        <div><label class="lbl" for="recMixInput">Mixto — %</label><input id="recMixInput" type="number" min="0" step="1"></div>
+      </div>
+      <label class="lbl" for="chofPctInput">Ganancia del chofer — % obligatoria sobre el precio al cliente</label>
+      <input id="chofPctInput" type="number" min="0" max="49" step="0.5">
+      <label class="lbl" for="gkeyInput">Google Maps API key — opcional</label>
+      <input id="gkeyInput" type="text" placeholder="AIza…">
+      <div class="btnrow"><button id="saveAjustesBtn" class="btn">Guardar ajustes</button></div>
+      <p class="sm muted">Fórmula: combustible = km × consumo × precio. Recargo = % × combustible. Subtotal = combustible + recargo + gastos. Precio cliente = subtotal ÷ (1 − chofer%). El chofer se lleva ese % del precio cobrado.</p>
+    </div>
+  </section>
+  </main>
+
+  <footer class="foot">CubaLog · tus datos viven en este dispositivo · respáldalos desde Admin</footer>
+</div>
+
+<nav class="bottom" aria-label="Navegación principal">
+  <button class="navbtn active" data-tab="viaje"><svg><use href="#i-route"/></svg>Viaje</button>
+  <button class="navbtn" data-tab="carros"><svg><use href="#i-car"/></svg>Mis Carros</button>
+  <button class="navbtn" data-tab="gastos"><svg><use href="#i-receipt"/></svg>Gastos</button>
+  <button class="navbtn" data-tab="admin" hidden><svg><use href="#i-users"/></svg>Admin</button>
+  <button class="navbtn" data-tab="ajustes"><svg><use href="#i-gear"/></svg>Ajustes</button>
+</nav>
+<div id="toastEl" hidden role="status"></div>
+
+<script>
+  document.querySelectorAll("input[name='tripType']").forEach(function(r){
+    r.addEventListener("change", function(){
+      document.querySelectorAll(".trip").forEach(function(t){ t.classList.remove("sel"); });
+      r.closest(".trip").classList.add("sel");
+    });
+  });
+</script>
