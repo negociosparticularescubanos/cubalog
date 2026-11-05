@@ -571,6 +571,7 @@
   }
   function enterApp(user) {
     $("gateEl").hidden = true;
+    $("appWrap").hidden = false;
     const chip = $("userChipEl");
     chip.innerHTML = "<span class='avatar sm' style='background:" + esc(user.color || "#0ea5e9") + "'>" + esc((user.name || "?")[0].toUpperCase()) + "</span><b>" + esc(user.name) + "</b>" + (user.role === "admin" ? "<small class='pill'>admin</small>" : "");
     document.querySelectorAll(".navbtn").forEach(b => { if (b.dataset.tab === "admin") b.hidden = user.role !== "admin"; });
@@ -755,6 +756,8 @@
     };
     // puerta de acceso: migra cuentas viejas, siembra admin/chofer1 si es estreno
     (async function bootAuth() {
+      if (window.Server && Server.token()) $("gateEl").hidden = true;
+      setTimeout(() => { if ($("appWrap").hidden && $("gateEl").hidden) { $("appWrap").hidden = false; } }, 9000);
       if (window.Server) {
         Server.mounts();
         await Server.ping();
