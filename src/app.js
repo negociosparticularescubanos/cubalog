@@ -587,6 +587,7 @@
       "<div class='carinfo'><b>" + esc(u.name) + "</b><span class='muted sm'>@" + esc(u.username || "") + " · " + (u.role === "admin" ? "Administradora · acceso total" : "Chofer · sus carros y precios") + "</span></div>" +
       "<div class='carbtns'>" +
       "<button class='btn xs ghost' data-reset='" + u.id + "'>Clave</button>" +
+      "<button class='btn xs ghost' data-renom='" + u.id + "'>Usuario</button>" +
       (u.role !== "admin" ? "<button class='btn xs danger' data-deluser='" + u.id + "'>✕</button>" : "") +
       "</div></div>").join("");
     c.querySelectorAll("[data-reset]").forEach(b => b.onclick = async () => {
@@ -600,6 +601,26 @@
         toast("Contraseña actualizada");
       }
       catch (e) { toast(e.message && e.message.length > 12 ? e.message : "Mínimo 4 caracteres"); }
+    });
+    c.querySelectorAll("[data-renom]").forEach(b => b.onclick = async () => {
+      const usr = window.Auth.users().find(x => x.id === b.dataset.renom);
+      const nu = prompt("Nuevo usuario para " + (usr ? usr.name : "") + " (3-20: letras, números, . _ -):", usr ? usr.username : "");
+      if (nu == null) return;
+      const limpio = String(nu).trim().toLowerCase();
+      if (!/^[a-z0-9._-]{3,20}$/.test(limpio)) { toast("Usuario no válido (3-20: letras, números, . _ -)"); return; }
+      if (window.Auth.users().some(x => x.id !== b.dataset.renom && String(x.username).toLowerCase() === limpio)) { toast("Ese usuario ya existe"); return; }
+      try {
+        if (window.Server && Server.online && Server.token()) {
+          const r = await Server.api({ action: "user_update", token: Server.token(), id: b.dataset.renom, data: { username: limpio } });
+          if (!r || !r.ok) throw new Error((r && r.error) || "error");
+          const rl = await Server.api({ action: "users_list", token: Server.token() });
+          if (rl && rl.ok) window.Store.saveRaw(window.Auth.K_USERS, rl.usuarios);
+        } else {
+          const us = window.Auth.users(); const t = us.find(x => x.id === b.dataset.renom); if (t) { t.username = limpio; window.Auth.saveUsers(us); }
+        }
+        renderAdmin(); toast("Usuario actualizado: @" + limpio);
+      }
+      catch (e) { toast(e.message || "No se pudo cambiar"); }
     });
     c.querySelectorAll("[data-deluser]").forEach(b => b.onclick = async () => {
       const u = window.Auth.users().find(x => x.id === b.dataset.deluser);
